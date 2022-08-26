@@ -13,9 +13,11 @@ type EventLog struct {
 }
 
 type SendLog struct {
-	LogUUI    string
-	IP        string
-	UserUUID  string
-	Timestamp int64
-	Event     EventLog
+	LogUUI       string
+	IP           string
+	UserUUID     string
+	Timestamp    int64
+	URL          string
+	DataRequest  string
+	DataResponse string
 }

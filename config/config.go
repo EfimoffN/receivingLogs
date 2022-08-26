@@ -34,6 +34,7 @@ type ClickConfig struct {
 type KafkaConfig struct {
 	LocalHost string
 	Topic     string
+	ClientID  string
 }
 
 func CreateConfig(typedb string) (*ConfigApp, error) {
@@ -170,9 +171,15 @@ func getConfigKFK() (*KafkaConfig, error) {
 		return nil, ErrNoAllParametersKFK
 	}
 
+	clientId := os.Getenv("clientKafkaID")
+	if len(localhost) == 0 {
+		return nil, ErrNoAllParametersKFK
+	}
+
 	kfkConfig := KafkaConfig{
 		LocalHost: localhost,
 		Topic:     topic,
+		ClientID:  clientId,
 	}
 	return &kfkConfig, nil
 }

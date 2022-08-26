@@ -2,6 +2,6 @@ package reciver
 
 import "context"
 
-type SavedLogI interface {
+type LogSaver interface {
 	SaveLog(ctx context.Context, sLog SendLog) error
 }
