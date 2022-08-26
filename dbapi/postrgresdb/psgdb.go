@@ -39,3 +39,7 @@ func (api *PSGAPI) SaveLog(ctx context.Context, sLog reciver.SendLog) error {
 
 	return nil
 }
+
+func (api *PSGAPI) Close() {
+	api.db.Close()
+}

@@ -55,3 +55,7 @@ func (api *MNGAAPI) SaveLog(ctx context.Context, sLog reciver.SendLog) error {
 
 	return nil
 }
+
+func (api *MNGAAPI) Close() {
+	api.session.Close()
+}

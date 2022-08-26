@@ -35,3 +35,7 @@ func (api *CLCAPI) SaveLog(ctx context.Context, sLog reciver.SendLog) error {
 
 	return nil
 }
+
+func (api *CLCAPI) Close() {
+	api.ch.Close()
+}

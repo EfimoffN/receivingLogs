@@ -50,3 +50,7 @@ func (api *KafkaAPI) SaveLog(ctx context.Context, sLog reciver.SendLog) error { 
 
 	return nil
 }
+
+func (api *KafkaAPI) Close() {
+	api.kfk.Close()
+}
