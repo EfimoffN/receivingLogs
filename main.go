@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"log"
 	"os"
@@ -31,11 +30,16 @@ func main() {
 			},
 		},
 		Action: func(cCtx *cli.Context) error {
-			ctx := context.Background()
-
 			cfg, err := config.CreateConfig(cCtx.String("typedb"))
+			if err != nil {
+				log.Fatal("service failed on create config", err)
+			}
 
-			// закрывать подключение к БД по завершению
+			db, err := createConnectDB(*cfg)
+			if err != nil {
+				log.Fatal("service failed on create connect to db", err)
+			}
+			defer db.Close()
 
 			return nil
 		},
