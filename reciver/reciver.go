@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 type LogSaver interface {
@@ -17,27 +18,31 @@ type LogSaver interface {
 }
 
 type Reciver struct {
-	IP  string
-	DB  LogSaver
-	ctx context.Context
+	IP   string
+	Port string
+	DB   LogSaver
+	ctx  context.Context
 }
 
-func NewReciver(ip string, db LogSaver, ctx context.Context) *Reciver {
+func NewReciver(port string, db LogSaver, ctx context.Context) *Reciver {
 	return &Reciver{
-		IP:  ip,
-		DB:  db,
-		ctx: ctx,
+		IP:   port,
+		Port: port,
+		DB:   db,
+		ctx:  ctx,
 	}
 }
 
-func (rc *Reciver) StartServerLog() error {
-	http.HandleFunc("/log", rc.logReception)
-	err := http.ListenAndServe(":"+rc.IP, nil)
-	if err != nil {
-		return err
+func (rc *Reciver) CreateServerLog() (*http.Server, error) {
+	router := mux.NewRouter()
+	router.HandleFunc("/log", rc.logReception).Methods("POST")
+
+	srv := &http.Server{
+		Addr:    ":" + rc.Port,
+		Handler: router,
 	}
 
-	return nil
+	return srv, nil
 }
 
 func (rc *Reciver) logReception(w http.ResponseWriter, r *http.Request) {
@@ -51,6 +56,8 @@ func (rc *Reciver) logReception(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	rc.logProcessing(acceptLog)
 }
 
 func (rc *Reciver) logProcessing(acceptLog AcceptLog) {
@@ -77,6 +84,9 @@ func (rc *Reciver) logProcessing(acceptLog AcceptLog) {
 
 func (rc *Reciver) logWrite(sendLog []SendLog) {
 	for _, l := range sendLog {
-		rc.DB.SaveLog(rc.ctx, l)
+		err := rc.DB.SaveLog(rc.ctx, l)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }

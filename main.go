@@ -1,9 +1,14 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/EfimoffN/receivingLogs/config"
 	clcapi "github.com/EfimoffN/receivingLogs/dbapi/clickdb"
@@ -39,7 +44,36 @@ func main() {
 			if err != nil {
 				log.Fatal("service failed on create connect to db", err)
 			}
-			defer db.Close()
+
+			rc := reciver.NewReciver(cfg.Port, db, cCtx.Context)
+			srv, err := rc.CreateServerLog()
+			if err != nil {
+				log.Fatal("service failed on start server", err)
+			}
+
+			done := make(chan os.Signal, 1)
+			signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+			go func() {
+				if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+					log.Fatalf("listen: %s\n", err)
+				}
+			}()
+			log.Print("Server Started")
+
+			<-done
+			log.Print("Server Stopped")
+
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer func() {
+				cancel()
+				db.Close()
+			}()
+
+			if err := srv.Shutdown(ctx); err != nil {
+				log.Fatalf("Server Shutdown Failed:%+v", err)
+			}
+			log.Print("Server Exited Properly")
 
 			return nil
 		},
