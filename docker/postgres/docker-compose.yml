@@ -4,9 +4,12 @@ services:
     container_name: postgres_container
     image: postgres:latest
     environment:
-      POSTGRES_DB: "botdb"
+      POSTGRES_DB: "receivedb"
       POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "123456"
+      POSTGRES_PASSWORD: "postgres"
+    volumes:
+      - .:/docker-entrypoint-initdb.d
+      - ./db:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:

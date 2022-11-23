@@ -10,6 +10,7 @@ type ConfigApp struct {
 	ClickConfig ClickConfig
 	KafkaConfig KafkaConfig
 	Port        string
+	Host        string
 }
 
 type PsgConfig struct {
@@ -17,6 +18,7 @@ type PsgConfig struct {
 	Password string
 	DBname   string
 	SSLmode  string
+	Port     string
 }
 
 type MongoConfig struct {
@@ -40,6 +42,7 @@ type KafkaConfig struct {
 func CreateConfig(typedb string) (*ConfigApp, error) {
 	cfg := ConfigApp{}
 	cfg.Port = os.Getenv("portR")
+	cfg.Host = os.Getenv("host")
 
 	switch typedb {
 	case "psg":
@@ -101,11 +104,17 @@ func getConfigPSG() (*PsgConfig, error) {
 		return nil, ErrNoAllParametersPSG
 	}
 
+	port := os.Getenv("portDB")
+	if len(port) == 0 {
+		return nil, ErrNoAllParametersPSG
+	}
+
 	psgConfig := PsgConfig{
 		User:     user,
 		Password: password,
 		DBname:   dbname,
 		SSLmode:  sslmode,
+		Port:     port,
 	}
 
 	return &psgConfig, nil

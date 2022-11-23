@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -20,16 +20,18 @@ type LogSaver interface {
 type Reciver struct {
 	IP   string
 	Port string
+	Host string
 	DB   LogSaver
 	ctx  context.Context
 }
 
-func NewReciver(port string, db LogSaver, ctx context.Context) *Reciver {
+func NewReciver(port, host string, db LogSaver, ctx context.Context) *Reciver {
 	return &Reciver{
-		IP:   port,
+		IP:   port, //  разобраться с IP  как достать от сообщения
 		Port: port,
 		DB:   db,
 		ctx:  ctx,
+		Host: host,
 	}
 }
 
@@ -38,7 +40,7 @@ func (rc *Reciver) CreateServerLog() (*http.Server, error) {
 	router.HandleFunc("/log", rc.logReception).Methods("POST")
 
 	srv := &http.Server{
-		Addr:    ":" + rc.Port,
+		Addr:    rc.Host + ":" + rc.Port,
 		Handler: router,
 	}
 
@@ -46,7 +48,7 @@ func (rc *Reciver) CreateServerLog() (*http.Server, error) {
 }
 
 func (rc *Reciver) logReception(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println(err)
 	}

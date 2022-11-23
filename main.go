@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -24,7 +25,6 @@ var (
 )
 
 func main() {
-
 	app := &cli.App{
 		Name: "recivLog",
 		Flags: []cli.Flag{
@@ -35,7 +35,8 @@ func main() {
 			},
 		},
 		Action: func(cCtx *cli.Context) error {
-			cfg, err := config.CreateConfig(cCtx.String("typedb"))
+			cfg, err := config.CreateConfig("psg")
+			// cfg, err := config.CreateConfig(cCtx.String("typedb"))
 			if err != nil {
 				log.Fatal("service failed on create config", err)
 			}
@@ -45,7 +46,7 @@ func main() {
 				log.Fatal("service failed on create connect to db", err)
 			}
 
-			rc := reciver.NewReciver(cfg.Port, db, cCtx.Context)
+			rc := reciver.NewReciver(cfg.Port, cfg.Host, db, cCtx.Context)
 			srv, err := rc.CreateServerLog()
 			if err != nil {
 				log.Fatal("service failed on start server", err)
@@ -90,8 +91,20 @@ func createConnectDB(cfg config.ConfigApp) (reciver.LogSaver, error) {
 	if cfg.PsgConfig.DBname != "" &&
 		cfg.PsgConfig.Password != "" &&
 		cfg.PsgConfig.SSLmode != "" &&
-		cfg.PsgConfig.User != "" {
-		db, err := psgapi.ConnectPSG(conectString)
+		cfg.PsgConfig.User != "" &&
+		cfg.PsgConfig.Port != "" {
+		wp := "host=%s port=%s user=%s password=%s dbname=%s sslmode=%s"
+		connectionString := fmt.Sprintf(
+			wp,
+			"localhost",
+			cfg.PsgConfig.Port,
+			cfg.PsgConfig.User,
+			cfg.PsgConfig.Password,
+			cfg.PsgConfig.DBname,
+			cfg.PsgConfig.SSLmode,
+		)
+
+		db, err := psgapi.ConnectPSG(connectionString)
 		if err != nil {
 			return nil, err
 		}
