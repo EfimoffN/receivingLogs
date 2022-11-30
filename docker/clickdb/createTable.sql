@@ -1,4 +1,4 @@
-CREATE DATABASE Test;
+-- CREATE DATABASE Test;
 
 CREATE TABLE if not exists Test.prj_log (
     loguui UUID NOT NULL,

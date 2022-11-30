@@ -30,6 +30,7 @@ type ClickConfig struct {
 	Password string
 	DBname   string
 	Host     string
+	Port     string
 	SSLmode  string
 }
 
@@ -158,12 +159,18 @@ func getConfigCLC() (*ClickConfig, error) {
 		return nil, ErrNoAllParametersCLC
 	}
 
+	port := os.Getenv("portCLC")
+	if len(sslmode) == 0 {
+		return nil, ErrNoAllParametersCLC
+	}
+
 	clcConfig := ClickConfig{
 		User:     user,
 		Password: password,
 		Host:     host,
 		DBname:   dbname,
 		SSLmode:  sslmode,
+		Port:     port,
 	}
 
 	return &clcConfig, nil

@@ -17,11 +17,15 @@ func NewCLCAPI(ch *ch.DB) *CLCAPI {
 	}
 }
 
-func ConnectCLC(cfg string) (*ch.DB, error) {
+func ConnectCLC(cfg string, ctx context.Context) (*ch.DB, error) {
 	// clickhouse://<user>:<password>@<host>:<port>/<database>?sslmode=disable
 	db := ch.Connect(
 		ch.WithDSN(cfg),
 	)
+
+	if err := db.Ping(ctx); err != nil {
+		return nil, err
+	}
 
 	return db, nil
 }

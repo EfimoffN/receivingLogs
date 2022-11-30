@@ -127,7 +127,20 @@ func createConnectDB(cfg config.ConfigApp) (reciver.LogSaver, error) {
 		cfg.ClickConfig.DBname != "" &&
 		cfg.ClickConfig.Host != "" &&
 		cfg.ClickConfig.SSLmode != "" {
-		db, err := clcapi.ConnectCLC(conectString)
+
+		wp := "clickhouse://%s:%s@%s:%s/%s?sslmode=%s"
+		connectionString := fmt.Sprintf(
+			wp,
+			cfg.ClickConfig.User,
+			cfg.ClickConfig.Password,
+			cfg.ClickConfig.Host,
+			cfg.ClickConfig.Port,
+			cfg.ClickConfig.DBname,
+			cfg.ClickConfig.SSLmode,
+		)
+
+		ctx := context.Background()
+		db, err := clcapi.ConnectCLC(connectionString, ctx)
 		if err != nil {
 			return nil, err
 		}
