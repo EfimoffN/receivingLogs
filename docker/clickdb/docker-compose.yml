@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  ch_server:
+    container_name: clickhouse_container
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - "8123:8123"
+    volumes:
+      # - .:/docker-entrypoint-initdb.d 
+      - ./db:/var/lib/clickhouse/data
+    networks:
+      - ch_server
+
+networks:
+  ch_server:
+    driver: bridge

@@ -35,8 +35,7 @@ func main() {
 			},
 		},
 		Action: func(cCtx *cli.Context) error {
-			cfg, err := config.CreateConfig("psg")
-			// cfg, err := config.CreateConfig(cCtx.String("typedb"))
+			cfg, err := config.CreateConfig(cCtx.String("typedb"))
 			if err != nil {
 				log.Fatal("service failed on create config", err)
 			}
